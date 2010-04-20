@@ -8,4 +8,4 @@ AC_PROG_LIBTOOL
 AM_MAINTAINER_MODE
 AC_CHECK_HEADERS(security/pam_modules.h)
 AC_CONFIG_HEADER(src/config.h)
-AC_OUTPUT(Makefile src/Makefile)
+AC_OUTPUT(Makefile src/Makefile src/pam_rps.8)

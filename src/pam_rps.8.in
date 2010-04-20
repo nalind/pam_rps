@@ -1,6 +1,4 @@
-.\" Copyright 2003 Red Hat, Inc.
-.\" Written by Nalin Dahyabhai <nalin@redhat.com>
-.TH pam_rps 8 2003/6/30 "Red Hat Linux" "System Administrator's Manual"
+.TH pam_rps 8 2010/4/20 "Red Hat Linux" "System Administrator's Manual"
 
 .SH NAME
 pam_rps \- challenge-response authentication
@@ -9,8 +7,8 @@ pam_rps \- challenge-response authentication
 .B auth sufficient pam_rps.so
 
 .SH DESCRIPTION
-pam_rps.so is designed to provide a true challenge-response authentication
-mechanism for PAM-enabled applications.
+pam_rps.so is designed to provide an easy-to-test challenge-response
+authentication mechanism for PAM-enabled applications.
 
 Without pam_rps, successful authentication can only occur for a user if the
 user has previously established an authentication token for use with the
