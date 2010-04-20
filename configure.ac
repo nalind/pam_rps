@@ -1,5 +1,6 @@
 AC_INIT(pam_rps,0.1)
 AM_INIT_AUTOMAKE(foreign)
+AC_PROG_CC
 AC_PROG_LIBTOOL
 AM_MAINTAINER_MODE
 AC_CHECK_HEADERS(security/pam_modules.h)
