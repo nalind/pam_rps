@@ -79,39 +79,28 @@ pam_sm_authenticate(pam_handle_t *pamh, int flags, int argc, const char **argv)
 			return PAM_CONV_ERR;
 		}
 	}
-	switch (r) {
-	case 0:
-		strcpy(prompt_text, values[0]);
-		want = values[1];
-		break;
-	case 1:
-		strcpy(prompt_text, values[1]);
-		want = values[2];
-		break;
-	case 2:
-		strcpy(prompt_text, values[2]);
-		want = values[0];
-		break;
-	}
+
+	strcpy(prompt_text, values[(r % 3)]);
+	want = values[((r + 1) % 3)];
 	if (debug) {
 		pam_syslog(pamh, LOG_DEBUG, "challenge is \"%s\", "
-		       "expected response is \"%s\"", prompt_text, want);
+			   "expected response is \"%s\"", prompt_text, want);
 	}
-	ret = pam_prompt(pamh, PAM_PROMPT_ECHO_OFF, &response, "%s: ", prompt_text);
+	ret = pam_prompt(pamh, PAM_PROMPT_ECHO_OFF,
+			 &response, "%s: ", prompt_text);
 	if (ret != PAM_SUCCESS) {
 		pam_syslog(pamh, LOG_CRIT, "conversation error");
 		return PAM_CONV_ERR;
 	}
-	if ((response != NULL) &&
-	    (strcasecmp(response, want) == 0)) {
+	if ((response != NULL) && (strcasecmp(response, want) == 0)) {
 		ret = PAM_SUCCESS;
 	} else {
 		ret = PAM_AUTH_ERR;
 	}
-        if (response) {
-            _pam_overwrite(response);
-	    free(response);
-        }
+	if (response) {
+		_pam_overwrite(response);
+		free(response);
+	}
 	return ret;
 }
 
