@@ -108,11 +108,13 @@ get_random_byte(void)
 
 /* Select the challenge. */
 static void
-fill(struct pam_message *msg, int style, int n_rules)
+fill(struct pam_message *msg, int style, int n_rules, int throw)
 {
+	int which;
+	which = (throw != -1) ? throw : get_random_byte();
 	memset(msg, 0, sizeof(*msg));
 	msg->msg_style = style;
-	msg->msg = rules[get_random_byte() % n_rules].challenge;
+	msg->msg = rules[which % n_rules].challenge;
 }
 
 static void
@@ -140,7 +142,7 @@ pam_sm_authenticate(pam_handle_t *pamh, int flags, int argc, const char **argv)
 	struct pam_message **msgs, *msg_array, *prompt;
 	const struct pam_message **cmsgs;
 	const char *service;
-	int debug = 0, loglevel, i, j, k, score, best_of, prompt_style;
+	int debug = 0, loglevel, i, j, k, score, best_of, prompt_style, throw;
 	int abi_sun, abi_linux, n_rules, n_winners;
 
 #ifdef LOG_AUTHPRIV
@@ -189,6 +191,7 @@ pam_sm_authenticate(pam_handle_t *pamh, int flags, int argc, const char **argv)
 	abi_linux = 1;
 	n_rules = 3;
 	n_winners = 2;
+	throw = -1;
 	for (i = 0; i < argc; i++) {
 		/* Force Linux-PAM-style semantics. */
 		if (strcmp(argv[i], "linux") == 0) {
@@ -227,6 +230,13 @@ pam_sm_authenticate(pam_handle_t *pamh, int flags, int argc, const char **argv)
 				       "requiring best of %d matches", best_of);
 			}
 		}
+		/* Use non-random throw(s). */
+		if (strncmp(argv[i], "throw=", 6) == 0) {
+			throw = atol(argv[i] + 6);
+			if (debug) {
+				syslog(debug, "always throwing %d", throw);
+			}
+		}
 	}
 
 	/* Set up the PAM message structure.  We want to be able to exercise
@@ -255,14 +265,15 @@ pam_sm_authenticate(pam_handle_t *pamh, int flags, int argc, const char **argv)
 		 * array. */
 		for (i = 0; i < best_of; i++) {
 			msgs[i] = &msg_array[i];
-			fill(&msg_array[i], prompt_style, n_rules);
+			fill(&msg_array[i], prompt_style, n_rules, throw);
 		}
 	} else {
 		if (abi_linux) {
 			/* Set the pointer to the array, and fill the array. */
 			msgs = &msg_array;
 			for (i = 0; i < best_of; i++) {
-				fill(&msg_array[i], prompt_style, n_rules);
+				fill(&msg_array[i], prompt_style, n_rules,
+				     throw);
 			}
 		}
 		if (abi_sun) {
@@ -274,7 +285,7 @@ pam_sm_authenticate(pam_handle_t *pamh, int flags, int argc, const char **argv)
 					return PAM_BUF_ERR;
 				}
 				memset(msgs[i], 0, sizeof(struct pam_message));
-				fill(msgs[i], prompt_style, n_rules);
+				fill(msgs[i], prompt_style, n_rules, throw);
 			}
 		}
 	}

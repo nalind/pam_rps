@@ -19,6 +19,10 @@ local system or a trusted server.  Using pam_rps removes this limitation.
 Enable module debugging.  The module will log its progress to syslog with
 "debug" priority.
 
+.IP throw=\fInumber\fP
+The user will be issued the \fInumber\fPth challenge in the module's list
+of challenges that it can throw.
+
 .IP best_of=\fInumber\fP
 The user will be issued multiple challenges, and must "win" against more than
 one half of them.  If the supplied number is not odd, it will be incremented.
