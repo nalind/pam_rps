@@ -1,0 +1,21 @@
+#!/bin/sh
+if test -x /lib64 ; then
+	libdir=/lib64
+else
+	libdir=/lib
+fi
+if test `id -un` = "nalin" ; then
+	CFLAGS=`rpm --eval '%{optflags} -Wall -Wextra -Wno-unused' 2> /dev/null`
+	if test -n "$CFLAGS" ; then
+		export CFLAGS
+	fi
+	echo "Going to configure with $flags!"
+	mandir=${TMPDIR:-/var/tmp}/autogen-man-tmp
+else
+	flags=
+	mandir=/usr/share/man
+fi
+set -x -e
+rm -fr autom4te.cache
+autoreconf -i -f
+./configure --libdir=$libdir --sysconfdir=/etc --mandir=$mandir $flags "$@" --enable-maintainer-mode
