@@ -25,7 +25,7 @@ make %{?_smp_mflags}
 rm -rf $RPM_BUILD_ROOT
 make install DESTDIR=$RPM_BUILD_ROOT
 mkdir -p $RPM_BUILD_ROOT/%{_libdir}/%{name}
-./libtool --mode=install install install -m755 src/%{name} $RPM_BUILD_ROOT/%{_libdir}/%{name}/
+./libtool --mode=install install -m755 src/%{name} $RPM_BUILD_ROOT/%{_libdir}/%{name}/
 
 %clean
 rm -rf $RPM_BUILD_ROOT
