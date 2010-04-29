@@ -1,4 +1,4 @@
-AC_INIT(pam_rps,0.1)
+AC_INIT(pam_rps,0.2)
 AM_INIT_AUTOMAKE(foreign)
 AC_PROG_CC
 if test x$GCC = xyes ; then

@@ -5,7 +5,6 @@ Summary:	A challenge-response PAM authentication module
 
 Group:		System Environment/Base
 License:	MIT
-URL:		
 Source0:	pam_rps-%{version}.tar.gz
 BuildRoot:	%(mktemp -ud %{_tmppath}/%{name}-%{version}-%{release}-XXXXXX)
 
