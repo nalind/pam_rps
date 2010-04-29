@@ -70,14 +70,16 @@ converse(int n, const struct pam_message **msgs,
 			/* Sun ABI. */
 			msg = msgs[i];
 		}
-		if (msg->msg_style == PAM_PROMPT_ECHO_OFF) {
+		switch (msg->msg_style) {
+		case PAM_PROMPT_ECHO_OFF:
 			s = getpass(msg->msg);
 			if (s == NULL) {
 				s = "";
 			}
 			(*resp)[i].resp_retcode = 0;
 			(*resp)[i].resp = strdup(s);
-		} else {
+			break;
+		case PAM_PROMPT_ECHO_ON:
 			fprintf(stderr, "%s", msg->msg);
 			s = fgets(buf, sizeof(buf), stdin);
 			if (s == NULL) {
@@ -86,6 +88,12 @@ converse(int n, const struct pam_message **msgs,
 			s[strcspn(s, "\r\n")] = '\0';
 			(*resp)[i].resp_retcode = 0;
 			(*resp)[i].resp = strdup(s);
+			break;
+		default:
+			fprintf(stderr, "%s\n", msg->msg);
+			(*resp)[i].resp_retcode = 0;
+			(*resp)[i].resp = NULL;
+			break;
 		}
 	}
 	return 0;

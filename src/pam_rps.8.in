@@ -31,6 +31,9 @@ one half of them.  If the supplied number is not odd, it will be incremented.
 Signal to the calling application that the user should be able to see
 the response as it is being typed in.
 
+.IP verbose
+Let the user know the results of the match(es).
+
 .IP sun
 Follow the conversation conventions consistent with Solaris PAM and not
 Linux-PAM.  The default is to attempt to accomodate both.
@@ -38,6 +41,10 @@ Linux-PAM.  The default is to attempt to accomodate both.
 .IP linux
 Follow the conversation conventions consistent with Linux-PAM and not
 Solaris PAM.  The default is to attempt to accomodate both.
+
+.IP lizard
+.IP spock
+Use the enhanced ruleset.
 
 .SH NOTES
 Do not use this module in production.

@@ -37,6 +37,8 @@
 #include <sys/types.h>
 #include <errno.h>
 #include <fcntl.h>
+#include <limits.h>
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <syslog.h>
@@ -44,30 +46,45 @@
 
 #include <security/pam_modules.h>
 
-/* These are the rules. */
+/* These are the rules.  Apologies to Sam Kass. */
 struct beater {
 	const char *what, *how;
 };
 struct beater what_beats_rock[] = {
 	{"paper", "covers"},
 	{"papyrus", "covers"},
+	{"spock", "vaporizes"},
 };
 struct beater what_beats_paper[] = {
 	{"scissors", "cuts"},
 	{"shears", "cuts"},
+	{"lizard", "eats"},
 };
 struct beater what_beats_scissors[] = {
 	{"rock", "blunts"},
 	{"stone", "blunts"},
+	{"spock", "smashes"},
+};
+struct beater what_beats_lizard[] = {
+	{"rock", "crushes"},
+	{"stone", "crushes"},
+	{"scissors", "decapitates"},
+};
+struct beater what_beats_spock[] = {
+	{"paper", "disproves"},
+	{"papyrus", "disproves"},
+	{"lizard", "poisons"},
 };
 struct rule {
-	const char *challenge;
+	const char *what, *challenge;
 	struct beater *beaters;
 };
 struct rule rules[] = {
-	{"rock: ", what_beats_rock},
-	{"paper: ", what_beats_paper},
-	{"scissors: ", what_beats_scissors},
+	{"rock", "rock: ", what_beats_rock},
+	{"paper", "paper: ", what_beats_paper},
+	{"scissors", "scissors: ", what_beats_scissors},
+	{"lizard", "lizard: ", what_beats_lizard},
+	{"spock", "spock: ", what_beats_spock},
 };
 
 /* Wrappers for pam_get_item() to get some measure of type-safety. */
@@ -134,6 +151,26 @@ lost(int loglevel, const char *challenge, const char *response)
 	}
 }
 
+static void
+info(const struct pam_conv *conv,
+     const char *resp, const char *does, const char *what)
+{
+	char buffer[LINE_MAX];
+	const struct pam_message *msgs, msg = {
+		.msg_style = PAM_TEXT_INFO,
+		.msg = buffer,
+	};
+	struct pam_response *r;
+	snprintf(buffer, sizeof(buffer), "%s %s %s", resp, does, what);
+	r = NULL;
+	msgs = &msg;
+	(*(conv->conv))(1, &msgs, &r, conv->appdata_ptr);
+	if (r != NULL) {
+		free(r->resp);
+		free(r);
+	}
+}
+
 int
 pam_sm_authenticate(pam_handle_t *pamh, int flags, int argc, const char **argv)
 {
@@ -142,8 +179,8 @@ pam_sm_authenticate(pam_handle_t *pamh, int flags, int argc, const char **argv)
 	struct pam_message **msgs, *msg_array, *prompt;
 	const struct pam_message **cmsgs;
 	const char *service;
-	int debug = 0, loglevel, i, j, k, score, best_of, prompt_style, throw;
-	int abi_sun, abi_linux, n_rules, n_winners;
+	int debug, loglevel, i, j, k, score, best_of, prompt_style, throw;
+	int verbose, abi_sun, abi_linux, n_rules, n_winners;
 
 #ifdef LOG_AUTHPRIV
 	loglevel = LOG_AUTHPRIV | LOG_NOTICE;
@@ -174,6 +211,7 @@ pam_sm_authenticate(pam_handle_t *pamh, int flags, int argc, const char **argv)
 	}
 
 	/* Parse our debug flag. */
+	debug = 0;
 	for (i = 0; i < argc; i++) {
 		if (strcmp(argv[i], "debug") == 0) {
 #ifdef LOG_AUTHPRIV
@@ -192,6 +230,7 @@ pam_sm_authenticate(pam_handle_t *pamh, int flags, int argc, const char **argv)
 	n_rules = 3;
 	n_winners = 2;
 	throw = -1;
+	verbose = 0;
 	for (i = 0; i < argc; i++) {
 		/* Force Linux-PAM-style semantics. */
 		if (strcmp(argv[i], "linux") == 0) {
@@ -236,6 +275,19 @@ pam_sm_authenticate(pam_handle_t *pamh, int flags, int argc, const char **argv)
 			if (debug) {
 				syslog(debug, "always throwing %d", throw);
 			}
+		}
+		/* Expanded rules. */
+		if ((strcmp(argv[i], "lizard") == 0) ||
+		    (strcmp(argv[i], "spock") == 0)) {
+			n_rules = 5;
+			n_winners = 3;
+			if (debug) {
+				syslog(debug, "using expanded rules");
+			}
+		}
+		/* Tell the user what happened. */
+		if (strcmp(argv[i], "verbose") == 0) {
+			verbose++;
 		}
 	}
 
@@ -333,6 +385,12 @@ pam_sm_authenticate(pam_handle_t *pamh, int flags, int argc, const char **argv)
 						    prompt->msg,
 						    &rules[j].beaters[k],
 						    responses[i].resp);
+						if (verbose) {
+							info(conv,
+							     responses[i].resp,
+							     rules[j].beaters[k].how,
+							     rules[j].what);
+						}
 						score++;
 						break;
 					}
@@ -341,8 +399,14 @@ pam_sm_authenticate(pam_handle_t *pamh, int flags, int argc, const char **argv)
 				 * user lost. */
 				if (k >= n_winners) {
 					lost(debug,
-					     rules[j].challenge,
+					     rules[j].what,
 					     responses[i].resp);
+					if (verbose) {
+						info(conv,
+						     responses[i].resp,
+						     "loses to",
+						     rules[j].what);
+					}
 				}
 				break;
 			}

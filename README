@@ -6,6 +6,7 @@ RECOGNIZED ARGUMENTS:
 	throw=		control the challenge(s) issued
 	best_of=	control the number of rounds
 	echo		make the user's response visible to the user
+	verbose		make the results visible to the user
 	sun		expect Sun PAM semantics
 	linux		expect Linux-PAM semantics
 
