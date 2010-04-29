@@ -5,7 +5,7 @@ GITTAG=$(PACKAGE)-$(VERSION)
 distdir=$(GITTAG)
 
 tag:
-	test $(GITTAG) = `rpm -q --specfile --qf '%{name}-%{version}' $(srcdir)/$(PACKAGE).spec | head -n 1`
+	test $(GITTAG) = `rpm -q --specfile --qf '%{name}-%{version}\n' $(srcdir)/$(PACKAGE).spec | head -n 1`
 	git tag $(GITTAG)
 
 force-tag:
