@@ -50,12 +50,15 @@ struct beater {
 };
 struct beater what_beats_rock[] = {
 	{"paper", "covers"},
+	{"papyrus", "covers"},
 };
 struct beater what_beats_paper[] = {
 	{"scissors", "cuts"},
+	{"shears", "cuts"},
 };
 struct beater what_beats_scissors[] = {
 	{"rock", "blunts"},
+	{"stone", "blunts"},
 };
 struct rule {
 	const char *challenge;
@@ -185,7 +188,7 @@ pam_sm_authenticate(pam_handle_t *pamh, int flags, int argc, const char **argv)
 	abi_sun = 1;
 	abi_linux = 1;
 	n_rules = 3;
-	n_winners = 1;
+	n_winners = 2;
 	for (i = 0; i < argc; i++) {
 		/* Force Linux-PAM-style semantics. */
 		if (strcmp(argv[i], "linux") == 0) {
