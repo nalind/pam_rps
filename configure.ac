@@ -6,7 +6,7 @@ if test x$GCC = xyes ; then
 fi
 LT_INIT(disable-static)
 AM_MAINTAINER_MODE
-AC_CHECK_HEADERS(security/pam_modules.h)
+AC_CHECK_HEADERS(security/pam_modules.h security/pam_appl.h)
 AC_CHECK_FUNC(pam_get_item,,AC_CHECK_LIB(pam,pam_get_item))
 AC_CONFIG_HEADER(src/config.h)
 AC_OUTPUT(Makefile src/Makefile src/pam_rps.8)
