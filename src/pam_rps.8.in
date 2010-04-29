@@ -44,7 +44,7 @@ Solaris PAM.  The default is to attempt to accomodate both.
 
 .IP lizard
 .IP spock
-Use the enhanced ruleset.
+Use the expanded rules as defined by Sam Kass and Karen Bryla (http://www.samkass.com/theories/RPSSL.html).
 
 .SH NOTES
 Do not use this module in production.

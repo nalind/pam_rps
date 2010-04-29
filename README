@@ -9,6 +9,8 @@ RECOGNIZED ARGUMENTS:
 	verbose		make the results visible to the user
 	sun		expect Sun PAM semantics
 	linux		expect Linux-PAM semantics
+	lizard		use the expanded rules
+	spock		use the expanded rules
 
 MODULE SERVICES PROVIDED:
 	authentication
