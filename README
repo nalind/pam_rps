@@ -17,3 +17,6 @@ MODULE SERVICES PROVIDED:
 
 AUTHOR:
 	Nalin Dahyabhai <nalin@redhat.com>
+
+As of this writing, the module has no web site, but its git repository is
+available at http://fedorapeople.org/gitweb?p=nalin/public_git/pam_rps.git
